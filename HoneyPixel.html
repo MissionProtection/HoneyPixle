@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
@@ -11,7 +11,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-
     <style>
         .minecraft-font {
             font-family: 'Press Start 2P', cursive;
@@ -159,6 +158,7 @@
             </div>
         </div>
     </header>
+
     <!-- Login/Signup Modal -->
     <div id="auth-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
         <div class="minecraft-inventory rounded-lg p-8 bg-white relative w-full max-w-xs">
@@ -179,49 +179,37 @@
         </div>
     </div>
 
+    <!-- Dev Panel -->
+    <section id="dev-panel" class="container mx-auto my-12 p-6 minecraft-inventory rounded-lg">
+        <h2 class="minecraft-font text-2xl text-amber-800 mb-4">DEV PANEL 🛠️</h2>
 
-    <!-- Dev Tabs (hidden for non-devs) -->
-    <div id="dev-tabs" class="container mx-auto mt-6 mb-4 flex" style="display:none;">
-        <button class="tab-btn" data-tab="events">Manage Events</button>
-        <button class="tab-btn" data-tab="features">Game Features</button>
-        <button class="tab-btn" data-tab="rules">Server Rules</button>
-        <button class="tab-btn" data-tab="version">Update Version</button>
-        <button class="btn-minecraft" onclick="publishEvents()">Publish Now</button>
-        <button class="btn-minecraft mt-2" id="github-pr-btn">Create GitHub Pull Request</button>
-        <pre id="github-pr-status" class="text-xs text-green-700 mt-2"></pre>
+        <!-- Version -->
+        <div class="mb-6">
+            <label class="minecraft-font block mb-1 text-sm text-gray-700">Server Version</label>
+            <input id="dev-version" type="text" placeholder="e.g., 1.20.4" class="w-full p-2 rounded border minecraft-font text-sm" />
+            <button onclick="saveVersion()" class="btn-minecraft mt-2 px-4 py-2 minecraft-font text-xs">SAVE VERSION</button>
+        </div>
 
-    </div>
+        <!-- Events JSON -->
+        <div class="mb-6">
+            <label class="minecraft-font block mb-1 text-sm text-gray-700">Event JSON</label>
+            <textarea id="event-editor" rows="8" class="w-full p-2 rounded border minecraft-font text-sm" placeholder='[{"title":"Build Contest", "date":"2025-06-01", "prize":"500 COINS"}]'></textarea>
+            <button onclick="saveEvents()" class="btn-minecraft mt-2 px-4 py-2 minecraft-font text-xs">SAVE EVENTS</button>
+        </div>
 
-    <!-- Dev Tab Contents (hidden for non-devs) -->
-    <div class="container mx-auto mb-8">
-        <div id="tab-events" class="tab-content minecraft-inventory rounded-lg p-6">
-            <h2 class="minecraft-font text-xl mb-4">Manage Events</h2>
-            <textarea class="w-full p-2 border rounded font-mono" rows="5" placeholder="Edit events JSON or description here..."></textarea>
-            <button class="btn-minecraft mt-2" onclick="alert('Events updated!')">Save Events</button>
+        <!-- Publish -->
+        <div class="mt-8">
+            <button onclick="publishToGitHub()" class="emerald-block text-white px-6 py-2 minecraft-font text-sm border border-green-800">
+                🚀 Publish Changes to GitHub
+            </button>
         </div>
-        <div id="tab-features" class="tab-content minecraft-inventory rounded-lg p-6">
-            <h2 class="minecraft-font text-xl mb-4">Game Features</h2>
-            <textarea class="w-full p-2 border rounded font-mono" rows="5" placeholder="Edit features here..."></textarea>
-            <button class="btn-minecraft mt-2" onclick="alert('Features updated!')">Save Features</button>
-        </div>
-        <div id="tab-rules" class="tab-content minecraft-inventory rounded-lg p-6">
-            <h2 class="minecraft-font text-xl mb-4">Server Rules</h2>
-            <textarea id="events-editor" class="w-full p-2 border rounded font-mono" rows="5" placeholder="Edit events JSON or description here..."></textarea>
-            <textarea class="w-full p-2 border rounded font-mono" rows="5" placeholder="Edit server rules here..."></textarea>
-            <button class="btn-minecraft mt-2" onclick="alert('Rules updated!')">Save Rules</button>
-        </div>
-        <div id="tab-version" class="tab-content minecraft-inventory rounded-lg p-6">
-            <h2 class="minecraft-font text-xl mb-4">Update Version</h2>
-            <input type="text" class="w-full p-2 border rounded font-mono" placeholder="Enter new version (e.g. 1.21)" />
-            <button class="btn-minecraft mt-2" onclick="alert('Version updated!')">Update Version</button>
-        </div>
-        <div id="tab-publish" class="tab-content minecraft-inventory rounded-lg p-6">
-            <h2 class="minecraft-font text-xl mb-4">Publish to Live Site</h2>
-            <button class="btn-minecraft" onclick="alert('Changes published to live site!')">Publish Now</button>
-        </div>
-    </div>
+    </section>
 
     <!-- Hero Section -->
+    <div class="text-center mt-10">
+        <img src="minecraft_title.png" alt="Honey Lifesteal Logo" class="mx-auto pixelated w-auto max-h-32">
+    </div>
+
     <section id="home" class="text-center py-16 px-4">
         <div class="container mx-auto">
             <div class="mb-8">
@@ -231,7 +219,7 @@
             </div>
             <h2 class="minecraft-font text-4xl mb-8 text-amber-800">
                 WELCOME TO<br />
-                HONEYPIXELMC
+                HONEYPIXLE  MC
             </h2>
             <p class="text-lg mb-8 max-w-2xl mx-auto text-gray-700 font-mono">
                 &gt; A cozy Minecraft server where community comes first<br />
@@ -246,8 +234,8 @@
                 <div class="grid grid-cols-2 gap-4 text-sm">
                     <div>VERSION: 1.20+</div>
                     <div>TYPE: SURVIVAL</div>
-                    <div>PLAYERS: 150/500</div>
-                    <div>STATUS: ONLINE</div>
+                    <div>PLAYERS: <span id="playerCount">Loading...</span>/<span id="maxPlayers">Loading...</span></div>
+                    <div>STATUS: <span id="onlineStatus">Loading...</span></div>
                 </div>
             </div>
             <div class="flex justify-center space-x-4 mt-8">
@@ -303,93 +291,80 @@
         <div class="container mx-auto">
             <h2 class="minecraft-font text-3xl text-center mb-12 text-amber-800">UPCOMING EVENTS</h2>
             <div class="text-center mb-8">
-                <button id="adminManageEventsBtn" class="btn-minecraft px-6 py-3 minecraft-font text-xs">
-                    [ADMIN] MANAGE EVENTS
-                </button>
-            </div>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const adminBtn = document.getElementById('adminManageEventsBtn');
-                    if (adminBtn) {
-                        adminBtn.addEventListener('click', function () {
-                            window.open('https://honeypixelmc.com/admin/events', '_blank');
-                        });
-                    }
-                });
-            </script>
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Event 1 -->
-                <div class="minecraft-inventory rounded-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-b from-blue-400 to-green-400 relative">
-                        <img src="https://honeypixelmc.com/images/events/build-competition.jpg" alt="Build Competition" class="w-full h-full object-cover pixelated opacity-80" />
-                        <div class="absolute top-2 left-2 bg-green-600 text-white px-2 py-1 minecraft-font text-xs">
-                            UPCOMING
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Event 1 -->
+                    <div class="minecraft-inventory rounded-lg overflow-hidden">
+                        <div class="h-48 bg-gradient-to-b from-blue-400 to-green-400 relative">
+                            <img src="/api/placeholder/400/200" alt="Build Competition" class="w-full h-full object-cover pixelated opacity-80" />
+                            <div class="absolute top-2 left-2 bg-green-600 text-white px-2 py-1 minecraft-font text-xs">
+                                UPCOMING
+                            </div>
+                            <div class="absolute top-2 right-2 bg-black text-white px-2 py-1 minecraft-font text-xs">
+                                DEC 25
+                            </div>
                         </div>
-                        <div class="absolute top-2 right-2 bg-black text-white px-2 py-1 minecraft-font text-xs">
-                            DEC 25
+                        <div class="p-4">
+                            <h3 class="minecraft-font text-sm mb-2 text-amber-700">BUILD CONTEST</h3>
+                            <p class="text-xs mb-4 text-gray-700">Show your building skills in our holiday competition! Top builders win epic rewards.</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-amber-600 minecraft-font">PRIZE: 500 COINS</span>
+                                <button class="btn-minecraft px-3 py-1 minecraft-font text-xs">JOIN</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="p-4">
-                        <h3 class="minecraft-font text-sm mb-2 text-amber-700">BUILD CONTEST</h3>
-                        <p class="text-xs mb-4 text-gray-700">Show your building skills in our holiday competition! Top builders win epic rewards.</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs text-amber-600 minecraft-font">PRIZE: 500 COINS</span>
-                            <button class="btn-minecraft px-3 py-1 minecraft-font text-xs">JOIN</button>
+                    <!-- Event 2 -->
+                    <div class="minecraft-inventory rounded-lg overflow-hidden">
+                        <div class="h-48 bg-gradient-to-b from-red-400 to-orange-400 relative">
+                            <img src="/api/placeholder/400/200" alt="PvP Tournament" class="w-full h-full object-cover pixelated opacity-80" />
+                            <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 minecraft-font text-xs">
+                                WEEKLY
+                            </div>
+                            <div class="absolute top-2 right-2 bg-black text-white px-2 py-1 minecraft-font text-xs">
+                                SAT
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="minecraft-font text-sm mb-2 text-amber-700">PVP ARENA</h3>
+                            <p class="text-xs mb-4 text-gray-700">Battle other players in our weekly PvP championship tournament.</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-amber-600 minecraft-font">WINNER TAKES ALL</span>
+                                <button class="btn-minecraft px-3 py-1 minecraft-font text-xs">FIGHT</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Event 3 -->
+                    <div class="minecraft-inventory rounded-lg overflow-hidden">
+                        <div class="h-48 bg-gradient-to-b from-purple-400 to-pink-400 relative">
+                            <img src="/api/placeholder/400/200" alt="New Year Event" class="w-full h-full object-cover pixelated opacity-80" />
+                            <div class="absolute top-2 left-2 bg-purple-600 text-white px-2 py-1 minecraft-font text-xs">
+                                SPECIAL
+                            </div>
+                            <div class="absolute top-2 right-2 bg-black text-white px-2 py-1 minecraft-font text-xs">
+                                JAN 1
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="minecraft-font text-sm mb-2 text-amber-700">NEW YEAR PARTY</h3>
+                            <p class="text-xs mb-4 text-gray-700">Celebrate the new year with fireworks, games and special rewards!</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-amber-600 minecraft-font">FREE EVENT</span>
+                                <button class="btn-minecraft px-3 py-1 minecraft-font text-xs">JOIN</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- Event 2 -->
-                <div class="minecraft-inventory rounded-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-b from-red-400 to-orange-400 relative">
-                        <img src="https://placehold.co/400x200?text=PvP+Tournament" alt="PvP Tournament" class="w-full h-full object-cover pixelated opacity-80" />
-                        <div class="absolute top-2 left-2 bg-blue-600 text-white px-2 py-1 minecraft-font text-xs">
-                            WEEKLY
-                        </div>
-                        <div class="absolute top-2 right-2 bg-black text-white px-2 py-1 minecraft-font text-xs">
-                            SAT
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="minecraft-font text-sm mb-2 text-amber-700">PVP ARENA</h3>
-                        <p class="text-xs mb-4 text-gray-700">Battle other players in our weekly PvP championship tournament.</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs text-amber-600 minecraft-font">WINNER TAKES ALL</span>
-                            <button class="btn-minecraft px-3 py-1 minecraft-font text-xs">FIGHT</button>
-                        </div>
-                    </div>
-                </div>
-                <!-- Event 3 -->
-                <div class="minecraft-inventory rounded-lg overflow-hidden">
-                    <div class="h-48 bg-gradient-to-b from-purple-400 to-pink-400 relative">
-                        <img src="https://placehold.co/400x200?text=New+Year+Event" alt="New Year Event" class="w-full h-full object-cover pixelated opacity-80" />
-                        <div class="absolute top-2 left-2 bg-purple-600 text-white px-2 py-1 minecraft-font text-xs">
-                            SPECIAL
-                        </div>
-                        <div class="absolute top-2 right-2 bg-black text-white px-2 py-1 minecraft-font text-xs">
-                            JAN 1
-                        </div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="minecraft-font text-sm mb-2 text-amber-700">NEW YEAR PARTY</h3>
-                        <p class="text-xs mb-4 text-gray-700">Celebrate the new year with fireworks, games and special rewards!</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs text-amber-600 minecraft-font">FREE EVENT</span>
-                            <button class="btn-minecraft px-3 py-1 minecraft-font text-xs">JOIN</button>
-                        </div>
+                <div class="mt-12 minecraft-inventory rounded-lg p-6">
+                    <h3 class="minecraft-font text-sm text-amber-800 mb-4">EVENT ADMIN GUIDE</h3>
+                    <div class="text-xs text-gray-700 space-y-2 font-mono">
+                        <div>&gt; Replace placeholder images with event screenshots</div>
+                        <div>&gt; Update event status badges (UPCOMING/WEEKLY/SPECIAL)</div>
+                        <div>&gt; Change dates, titles, descriptions and prizes</div>
+                        <div>&gt; Link buttons to Discord or registration forms</div>
+                        <div>&gt; Copy event blocks to add more events</div>
                     </div>
                 </div>
             </div>
-            <div class="mt-12 minecraft-inventory rounded-lg p-6">
-                <h3 class="minecraft-font text-sm text-amber-800 mb-4">EVENT ADMIN GUIDE</h3>
-                <div class="text-xs text-gray-700 space-y-2 font-mono">
-                    <div>&gt; Replace placeholder images with event screenshots</div>
-                    <div>&gt; Update event status badges (UPCOMING/WEEKLY/SPECIAL)</div>
-                    <div>&gt; Change dates, titles, descriptions and prizes</div>
-                    <div>&gt; Link buttons to Discord or registration forms</div>
-                    <div>&gt; Copy event blocks to add more events</div>
-                </div>
-            </div>
-        </div>
     </section>
 
     <!-- Donation Section -->
@@ -489,25 +464,35 @@
     <section class="bg-stone-600 py-12 px-4">
         <div class="container mx-auto">
             <div class="grid md:grid-cols-4 gap-8 text-center">
+
+                <!-- Player Count -->
                 <div class="minecraft-inventory rounded p-4">
-                    <div class="minecraft-font text-2xl text-amber-700">150+</div>
+                    <div class="minecraft-font text-2xl text-amber-700" id="playerCount">Loading...</div>
                     <div class="text-xs text-gray-700">ACTIVE PLAYERS</div>
                 </div>
+
+                <!-- Server MOTD (Message of the Day) -->
                 <div class="minecraft-inventory rounded p-4">
-                    <div class="minecraft-font text-2xl text-green-700">99.9%</div>
-                    <div class="text-xs text-gray-700">SERVER UPTIME</div>
+                    <div class="minecraft-font text-2xl text-green-700" id="motd">Loading...</div>
+                    <div class="text-xs text-gray-700">MOTD</div>
                 </div>
+
+                <!-- Server Version -->
                 <div class="minecraft-inventory rounded p-4">
-                    <div class="minecraft-font text-2xl text-blue-700">24/7</div>
-                    <div class="text-xs text-gray-700">STAFF SUPPORT</div>
+                    <div class="minecraft-font text-2xl text-blue-700" id="version">Loading...</div>
+                    <div class="text-xs text-gray-700">VERSION</div>
                 </div>
+
+                <!-- Server Status -->
                 <div class="minecraft-inventory rounded p-4">
-                    <div class="minecraft-font text-2xl text-purple-700">1 YEAR</div>
-                    <div class="text-xs text-gray-700">ONLINE</div>
+                    <div class="minecraft-font text-2xl" id="onlineStatus">Loading...</div>
+                    <div class="text-xs text-gray-700">STATUS</div>
                 </div>
+
             </div>
         </div>
     </section>
+
 
     <!-- Help Section -->
     <section class="bg-yellow-100 py-12 px-6 text-center">
@@ -566,6 +551,49 @@
         const auth = firebase.auth();
         const db = firebase.database();
 
+        // Server Status JavaScript
+        async function updateServerInfo() {
+            try {
+                const response = await fetch("https://api.mcsrvstat.us/3/play.honeypixelmc.com");
+                const data = await response.json();
+
+                document.getElementById("playerCount").textContent = data.players?.online ?? "0";
+                document.getElementById("maxPlayers").textContent = data.players?.max ?? "0";
+                document.getElementById("onlineStatus").textContent = data.online ? "Online ✅" : "Offline ❌";
+                document.getElementById("version").textContent = data.version ?? "Unknown";
+                document.getElementById("motd").textContent = data.motd?.clean?.join(' ') ?? "HoneyPixelMC";
+            } catch (error) {
+                console.error("Failed to fetch server info:", error);
+                document.getElementById("playerCount").textContent = "Error";
+                document.getElementById("maxPlayers").textContent = "Error";
+                document.getElementById("onlineStatus").textContent = "Error";
+                document.getElementById("version").textContent = "N/A";
+                document.getElementById("motd").textContent = "Unavailable";
+            }
+        }
+
+        updateServerInfo();
+        setInterval(updateServerInfo, 15000);
+
+        async function saveVersion() {
+            const version = document.getElementById("dev-version").value;
+            if (!version) return alert("Enter a version!");
+            await db.ref("site/version").set(version);
+            alert("✅ Version updated!");
+        }
+
+        async function saveEvents() {
+            const eventsJSON = document.getElementById("event-editor").value;
+            try {
+                const parsed = JSON.parse(eventsJSON);
+                await db.ref("site/events").set(parsed);
+                alert("✅ Events updated!");
+            } catch (e) {
+                alert("❌ Invalid JSON format.");
+            }
+        }
+
+
         // UI Elements
         const loginBtn = document.getElementById('login-btn');
         const logoutBtn = document.getElementById('logout-btn');
@@ -574,7 +602,7 @@
         const tabContents = document.querySelectorAll('.tab-content');
         let currentTab = null;
 
-        // --- AUTH MODAL LOGIC ---
+        // --- AUTH MODAL LOGIC ---VERSION
         const authModal = document.getElementById('auth-modal');
         const closeAuthModal = document.getElementById('close-auth-modal');
         const authForm = document.getElementById('auth-form');
@@ -635,6 +663,7 @@
             }
         }
 
+
         // Handle form submit
         authForm.onsubmit = async (e) => {
             e.preventDefault();
@@ -647,7 +676,7 @@
                     userCredential = await auth.signInWithEmailAndPassword(email, password);
                 } else {
                     userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    // Add to Realtime DB on sign up
+                    // Add to DB on sign up
                     await ensureUserInRealtimeDB(userCredential.user);
                 }
                 authModal.classList.add('hidden');
@@ -664,8 +693,9 @@
             try {
                 const provider = new firebase.auth.GoogleAuthProvider();
                 const result = await auth.signInWithPopup(provider);
-                // Add to Realtime DB if new
+                // Add to DB if new
                 await ensureUserInRealtimeDB(result.user);
+
                 authModal.classList.add('hidden');
                 authForm.reset();
             } catch (err) {
@@ -683,173 +713,6 @@
         };
 
         // --- END AUTH MODAL LOGIC ---
-        // GitHub PR button
-        // Helper: Generate event HTML from form/textarea (customize as needed)
-        function generateEventHTML(event) {
-            return `
-<div class="minecraft-inventory rounded-lg overflow-hidden">
-    <div class="h-48 bg-gradient-to-b from-blue-400 to-green-400 relative">
-        <img src="${event.image}" alt="${event.title}" class="w-full h-full object-cover pixelated opacity-80" />
-        <div class="absolute top-2 left-2 bg-green-600 text-white px-2 py-1 minecraft-font text-xs">
-            ${event.status}
-        </div>
-        <div class="absolute top-2 right-2 bg-black text-white px-2 py-1 minecraft-font text-xs">
-            ${event.date}
-        </div>
-    </div>
-    <div class="p-4">
-        <h3 class="minecraft-font text-sm mb-2 text-amber-700">${event.title}</h3>
-        <p class="text-xs mb-4 text-gray-700">${event.description}</p>
-        <div class="flex items-center justify-between">
-            <span class="text-xs text-amber-600 minecraft-font">${event.prize}</span>
-            <button class="btn-minecraft px-3 py-1 minecraft-font text-xs">${event.buttonText || 'JOIN'}</button>
-        </div>
-    </div>
-</div>
-    `;
-        }
-
-        function getEventDataFromEditor() {
-            // Here, we assume you have a textarea with id="events-editor" containing JSON
-            try {
-                return JSON.parse(document.getElementById('events-editor').value);
-            } catch {
-                alert('Invalid event JSON!');
-                return null;
-            }
-        }
-
-        // GitHub PR button logic
-        document.getElementById('github-pr-btn').onclick = async function () {
-            const event = getEventDataFromEditor();
-            if (!event) return;
-            const html = generateEventHTML(event);
-            document.getElementById('github-pr-status').textContent = 'Submitting PR...';
-
-            // Send to your backend endpoint
-            try {
-                const res = await fetch('https://your-backend.example.com/api/create-pr', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        htmlBlock: html,
-                        eventData: event,
-                        // Optionally: file, branch, PR title, etc.
-                    })
-                });
-                const data = await res.json();
-                if (data && data.pr_url) {
-                    document.getElementById('github-pr-status').innerHTML = `Pull request created: <a href="${data.pr_url}" target="_blank">${data.pr_url}</a>`;
-                } else {
-                    document.getElementById('github-pr-status').textContent = 'Failed to create PR: ' + (data.error || 'Unknown error');
-                }
-            } catch (e) {
-                document.getElementById('github-pr-status').textContent = 'Error: ' + e.message;
-            }
-        };
-        // Install: npm install express @octokit/rest body-parser
-        const express = require('express');
-        const bodyParser = require('body-parser');
-        const { Octokit } = require('@octokit/rest');
-        const app = express();
-        app.use(bodyParser.json());
-
-        const GITHUB_TOKEN = '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';
-        const REPO_OWNER = 'MissionProtection';
-        const REPO_NAME = 'HoneyPixle';
-        const FILE_PATH = 'HoneyPixel.html'; 
-
-        app.post('/api/create-pr', async (req, res) => {
-            const { htmlBlock, eventData } = req.body;
-            const octokit = new Octokit({ auth: GITHUB_TOKEN });
-
-            // 1. Get the file content and SHA
-            const { data: fileData } = await octokit.repos.getContent({
-                owner: REPO_OWNER,
-                repo: REPO_NAME,
-                path: FILE_PATH,
-            });
-            const content = Buffer.from(fileData.content, 'base64').toString('utf-8');
-
-            // 2. Insert the htmlBlock (customize this logic as needed)
-            const newContent = content.replace('<!-- EVENT_INSERT_MARKER -->', htmlBlock + '\n<!-- EVENT_INSERT_MARKER -->');
-
-            // 3. Create a new branch
-            const branchName = `event-update-${Date.now()}`;
-            const { data: refData } = await octokit.git.getRef({
-                owner: REPO_OWNER,
-                repo: REPO_NAME,
-                ref: 'heads/main',
-            });
-            await octokit.git.createRef({
-                owner: REPO_OWNER,
-                repo: REPO_NAME,
-                ref: `refs/heads/${branchName}`,
-                sha: refData.object.sha,
-            });
-
-            // 4. Commit the change to the new branch
-            await octokit.repos.createOrUpdateFileContents({
-                owner: REPO_OWNER,
-                repo: REPO_NAME,
-                path: FILE_PATH,
-                message: `Update event: ${eventData.title}`,
-                content: Buffer.from(newContent).toString('base64'),
-                branch: branchName,
-                sha: fileData.sha,
-            });
-
-            // 5. Create a pull request
-            const { data: pr } = await octokit.pulls.create({
-                owner: REPO_OWNER,
-                repo: REPO_NAME,
-                title: `Update event: ${eventData.title}`,
-                head: branchName,
-                base: 'main',
-                body: `Automated event update for "${eventData.title}".`,
-            });
-
-            res.json({ pr_url: pr.html_url });
-        });
-
-        app.listen(3000, () => console.log('Backend running on port 3000'));
-
-        // Example: Save events to Realtime Database (for devs)
-        // Save events to Realtime Database
-        window.publishEvents = async function () {
-            const eventsContent = document.getElementById('events-editor').value;
-            try {
-                await db.ref('siteContent/events').set({
-                    content: eventsContent,
-                    updatedAt: Date.now()
-                });
-                alert('Events published to live site!');
-            } catch (e) {
-                alert('Failed to publish: ' + e.message);
-            }
-        };
-
-        // Load events from Realtime Database (for all users)
-        async function loadEvents() {
-            try {
-                const snapshot = await db.ref('siteContent/events').get();
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    // If in dev mode, show in editor
-                    const editor = document.getElementById('events-editor');
-                    if (editor) editor.value = data.content;
-                    // Show on live site (replace this with your actual display logic)
-                    const liveDisplay = document.getElementById('events-live-content');
-                    if (liveDisplay) liveDisplay.textContent = data.content;
-                }
-            } catch (e) {
-                // Optionally handle error
-            }
-        }
-
-        // Call loadEvents on page load
-        document.addEventListener('DOMContentLoaded', loadEvents);
-
 
         // Logout
         logoutBtn.onclick = () => {
@@ -883,13 +746,14 @@
                 userInfo.classList.remove('hidden');
                 userInfo.textContent = user.displayName || user.email;
 
-                // Check role in Realtime DB
+                // Check role in Firestore
                 let role = "member";
                 try {
-                    const snapshot = await db.ref('users/' + user.uid).get();
-                    if (snapshot.exists() && snapshot.val().role === "dev") {
+                    const userSnap = await db.ref('users/' + user.uid).get();
+                    if (userSnap.exists() && userSnap.val().role === "dev") {
                         role = "dev";
                     }
+
                 } catch (e) {
                     console.error("Error checking user role:", e);
                 }
@@ -955,7 +819,6 @@
             });
         });
     </script>
-
 
 
 </body>
